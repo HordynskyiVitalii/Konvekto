@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Валютний конвертер</title>
+</head>
+<body>
+
+<div class="converter">
+    <h2 class="title">Валютний конвертер</h2>
+    <input class="imput" type="number" id="amount" placeholder="Сума">
+    <div class="corrency">
+    <select id="fromCurrency">
+        <option value="USD">USD</option>
+        <option value="EUR">EUR</option>
+        <option value="UAH">UAH</option>
+        <option value="CZK">CZK</option>
+        <option value="PLN">PLN</option>
+    </select>
+    <span class="currency-item"> <=> </span>
+    <select id="toCurrency">
+        <option value="USD">USD</option>
+        <option value="EUR">EUR</option>
+        <option value="UAH">UAH</option>
+        <option value="CZK">CZK</option>
+        <option value="PLN">PLN</option>
+    </select>
+</div>
+<div class="button-result">
+    <button class="button" onclick="convert()">Конвертувати</button>
+    <h3 class="result">Результат: <span id="result">0</span></h3>
+</div>
+<script>
+function convert() {
+    const amount = parseFloat(document.getElementById('amount').value);
+    const fromCurrency = document.getElementById('fromCurrency').value.toUpperCase();
+    const toCurrency = document.getElementById('toCurrency').value.toUpperCase();
+
+    const apiKey = 'd0f21a1a3317a4b613d77abe';
+    const apiUrl = `https://v6.exchangerate-api.com/v6/${apiKey}/latest/USD`;
+
+    // Отримання курсів валют з API
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            console.log('Received data:', data);
+
+            // Перевірка, чи отримані дані включають "rates"
+            if (!data || !data.conversion_rates) {
+                console.error('Error: "conversion_rates" property not found in the received data.');
+                return;
+            }
+
+            // Вибір курсів валют з отриманих даних
+            const exchangeRates = data.conversion_rates;
+
+            // Перевірка чи введена сума
+            if (isNaN(amount)) {
+                console.error('Invalid amount entered.');
+                return;
+            }
+
+            // Перевірка чи обрані валюти
+            if (!exchangeRates[fromCurrency] || !exchangeRates[toCurrency]) {
+                console.error('Invalid currencies selected.');
+                return;
+            }
+
+            // Перевірка чи курси валют є числовими
+            if (isNaN(exchangeRates[fromCurrency]) || isNaN(exchangeRates[toCurrency])) {
+                console.error('Invalid exchange rates for selected currencies.');
+                return;
+            }
+
+            // Перевірка вибраних валют та суми
+            console.log('Selected currencies:', fromCurrency, toCurrency);
+            console.log('Exchange rates:', exchangeRates[fromCurrency], exchangeRates[toCurrency]);
+            console.log('Entered amount:', amount);
+
+            // Розрахунок конвертації
+            const result = amount * (exchangeRates[toCurrency] / exchangeRates[fromCurrency]);
+
+            // Виведення результату
+            const resultElement = document.getElementById('result');
+            resultElement.textContent = result.toFixed(2);
+        })
+        .catch(error => {
+            console.error('Error fetching exchange rates:', error);
+        });
+}
+
+
+
+
+
+
+</script>
+</body>
+</html>
